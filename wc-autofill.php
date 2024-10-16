@@ -2,7 +2,7 @@
 /*
 Plugin Name: WooCommerce Autofill Products
 Description: Automatically fill WooCommerce products from an external API.
-Author: Helgi
+Author: Helgi Bjarnason
 Version: 1.0
 */
 
