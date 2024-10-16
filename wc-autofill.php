@@ -2,7 +2,7 @@
 /*
 Plugin Name: WooCommerce Autofill Products
 Description: Automatically fill WooCommerce products from an external API.
-Author: Helgi Bjarnason
+Author: Helgi
 Version: 1.0
 */
 
@@ -22,7 +22,13 @@ function wcap_autofill_page() {
     <div class="wrap">
         <h1>Autofill Products from API</h1>
         <form method="post">
-            <input type="submit" name="wcap_autofill" class="button button-primary" value="Autofill Products">
+            <button name="wcap_autofill">Autofill Products</button>    
+        <!-- <input type="submit" name="wcap_autofill" class="button button-primary" value="Autofill Products"> -->
+        </form>
+        <h1>Upload JSON file</h1>
+        <form method="post">
+            <input type="file" accept=".json" name="submitted_json_file">
+            <button name="json_file">Autofill Products (Submitted JSON file)</button>
         </form>
     </div>
     <?php
@@ -38,6 +44,7 @@ function wcap_fetch_and_create_products() {
     }
 
     $data = json_decode($response['body']);
+    $product_count = 0;
 
     if (!empty($data->products)) {
         foreach ($data->products as $product_data) {
@@ -50,7 +57,7 @@ function wcap_fetch_and_create_products() {
                 $product->set_name($product_data->title);
                 $product->set_regular_price($product_data->price);
                 $product->set_description($product_data->description);
-                $product->set_sku($product_data->id); // Use the API ID as SKU
+                $product->set_sku($product_data->id);
                 $product->set_stock_status('instock');
 
                 // Handle images
@@ -67,9 +74,13 @@ function wcap_fetch_and_create_products() {
                 }
 
                 $product->save();
+                $product_count ++;
             }
+            
         }
-        echo '<div class="updated"><p>Products have been autofilled successfully!</p></div>';
+        if ($product_count > 0) {
+        echo '<div class="updated"><p>'. $product_count .' Products have been autofilled successfully!</p></div>';
+        }
     } else {
         echo '<div class="error"><p>No products found in API response.</p></div>';
     }
