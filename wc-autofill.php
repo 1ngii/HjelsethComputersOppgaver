@@ -1,13 +1,13 @@
 <?php
 /*
 Plugin Name: WooCommerce Autofill Products
-Description: Automatically fill WooCommerce products from an external API.
+Description: Automatically fill WooCommerce products from an uploaded JSON file.
 Author: Helgi
-Version: 1.0
+Version: 1.1
 */
 
 // Hook to add admin menu
-add_action('admin_menu', 'wcap_add_admin_menu', 10);
+add_action('admin_menu', 'wcap_add_admin_menu');
 
 function wcap_add_admin_menu() {
     add_menu_page('Autofill Products', 'Autofill Products', 'manage_options', 'wcap_autofill', 'wcap_autofill_page');
@@ -24,7 +24,6 @@ function wcap_autofill_page() {
     }
     ?>
     <div class="wrap">
-        
         <form method="post" enctype="multipart/form-data">
             <h1>Autofill Products from uploaded JSON file</h1>
             <input type="file" name="submitted_json_file" accept=".json" required>
