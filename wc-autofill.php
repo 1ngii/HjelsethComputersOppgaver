@@ -81,7 +81,10 @@ function wcap_fetch_and_create_products() {
         if ($product_count > 0) {
         echo '<div class="updated"><p>'. $product_count .' Products have been autofilled successfully!</p></div>';
         }
-    } else {
+         elseif ($product_count == 0) {
+            echo '<div class="updated"><p>No product was autofilled, as they already exist.</p></div>';
+        } 
+        else {
         echo '<div class="error"><p>No products found in API response.</p></div>';
     }
 }
