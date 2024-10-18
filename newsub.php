@@ -9,37 +9,43 @@ Description: Adds subscription as metadata in all product types. A reboot of the
 add_action( 'woocommerce_product_options_general_product_data', 'ingii_option_group' );
 
 function ingii_option_group() {
-    // Render the checkbox
     echo '<div class="options_group">';
-    woocommerce_wp_checkbox(
-        array(
+    woocommerce_wp_checkbox([
             'id'    => 'sub',
             'value' => get_post_meta( get_the_ID(), 'subscription_product', true ),
             'label' => 'Subscription product',
             'desc_tip' => true,
             'description' => 'This is a subscription type product with recurring payments'
-        )
-    );
+        ]);
 
-    // Render the select box for subscription options
     $subscription_value = get_post_meta( get_the_ID(), 'subscription_options', true );
     echo '<div class="subscription_options" style="display: ' . (get_post_meta( get_the_ID(), 'subscription_product', true ) === 'yes' ? 'block' : 'none') . ';">';
     woocommerce_wp_select([
         'id' => 'subscription_options',
-        'label' => __( 'Select a subscription option', '' ),
+        'label' => __( 'Select a subscription option', 'New Subscription WooCommerce' ),
         'options' => [
-            '1' => '1 Month',
-            '2' => '3 Months',
-            '3' => 'Year'
+            '0' => '1 Month',
+            '1' => '3 Months',
+            '2' => 'Year'
         ],
-        'desc' => __('Choose one option from the dropdown'),
+        'desc' => __('Choose one option from the dropdown', 'New Subscription WooCommerce'),
         'value' => $subscription_value,
     ]);
-    echo '</div>';
 
-    echo '</div>'; // Close options_group
+    $subscription_price_value = get_post_meta(get_the_ID(), 'subscription_price', true);
+    woocommerce_wp_text_input([
+        'id'  =>  'subscription_price',
+        'label'  =>  'Price (kr)',
+        'desc_tip'  =>  true,
+        'description'  =>  'Price per month of subscription',
+        'value'  =>  $subscription_price_value,
+    ]);
 
-    // Enqueue JavaScript to show/hide the select box based on checkbox
+    echo '</div>'; //subscription_options
+
+    echo '</div>'; //options_group
+
+    // Enqueue JavaScript to show/hide the select box based on checkbox 
     wc_enqueue_js("
         jQuery('#sub').change(function(){
             if(jQuery(this).is(':checked')) {
@@ -54,17 +60,71 @@ function ingii_option_group() {
 add_action( 'woocommerce_process_product_meta', 'ingii_save_field' );
 
 function ingii_save_field( $id ) {
-    // Save subscription checkbox value
     $subscription = isset( $_POST['sub'] ) && 'yes' === $_POST['sub'] ? 'yes' : 'no';
     update_post_meta( $id, 'subscription_product', $subscription );
 
-    // Save subscription option selected
     if ($subscription == 'yes') {
         $subscription_option = isset($_POST['subscription_options']) ? $_POST['subscription_options'] : '';
         update_post_meta($id, 'subscription_options', $subscription_option);
-    } else {
-        // Optionally delete the subscription option if it's not a subscription
+    } 
+    else {
         delete_post_meta($id, 'subscription_options');
     }
+
+    if ($subscription == 'yes') {
+        $subscription_price = isset($_POST['subscription_price']) ? $_POST['subscription_price'] : '';
+        update_post_meta($id, '_price', $subscription_price);  
+    } 
+    else {
+        delete_post_meta($id, 'subscription_price');
+    }
 }
+
+
+add_action( 'woocommerce_single_product_summary', 'display_and_change_billing_option', 25 );
+
+function display_and_change_billing_option() {
+    global $product;
+
+    $billing_option = get_post_meta( $product->get_id(), 'subscription_product', true );
+    $custom_price = get_post_meta( $product->get_id(), 'subscription_price', true );
+
+    if($billing_option === 'yes'){
+        echo '<div class="billing-option">';
+        echo '<label for="billing_method">Choose your preferred billing method:</label>';
+        echo '<select id="billing_method" name="billing_method">';
+        echo '<option value="0"' . selected( '0', false ) . '>Regular price</option>';
+        echo '<option value="1"' . selected( '1', false ) . '>Subscription</option>';
+        echo '</select>';
+        echo '</div>';
+
+        if($billing_option === '0'){
+            relax();
+        }
+        elseif($billing_option === '1'){
+            if (! empty($custom_price) && is_numeric ($custom_price)){
+                $price = wc_price( $custom_price );
+            }
+        return $price;
+        }
+}}
+
+function relax(){
+    ;
+}
+
+
+// add_filter( 'woocommerce_get_price_html', 'replace_default_price_with_custom_price', 10, 2 );
+
+// function replace_default_price_with_custom_price( $price, $product ) {
+//     $custom_price = get_post_meta( $product->get_id(), 'subscription_price', true );
+
+//     if ( ! empty( $custom_price ) && is_numeric( $custom_price ) ) {
+//         $price = wc_price( $custom_price );
+//     }
+
+//     return $price;
+// }
+
+
 ?>
