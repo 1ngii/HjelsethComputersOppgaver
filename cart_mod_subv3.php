@@ -1,12 +1,13 @@
 <?php
-
-/*
-Plugin Name: Cart modification for SUBV3 plugin
-Author: 1ngii
-Description: This plugin helps modifying the cart, including extra info and pricing.
-Version: 1.0
-*/
-
+/**
+ * Plugin Name:WooCommerce Custom Cart Item Data
+ * Description: How To Add Custom Cart Item Data in WooCommerce.
+ * Plugin URI: https://webkul.com/
+ * Version: 1.0.0
+ * Author: Webkul
+ * Author URI: https://webkul.com/
+ * Text Domain: webkul
+ */
 /*
  * Add a custom input field to the product page.
  */
